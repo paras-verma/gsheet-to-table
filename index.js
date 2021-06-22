@@ -1,74 +1,56 @@
 const apiURL = "https://spreadsheets.google.com/feeds/list/1rqLV2T0YrLshuFpdgXKkWUNkkVJBW6Y5Ysuq9RwYwHo/od6/public/values?alt=json"
 
-const tableHeader = 
-['contactnumber', 
-'availibility', 'link', 'location', 'timedateverified' , 'additionalinfo']
+const tableHeader = [
+    'contactnumber', 
+    'availibility', 
+    'link', 
+    'location', 
+    'timedateverified' , 
+    'additionalinfo'
+];
 
 fetch(apiURL)
+// return promise
 .then(res=> res.json())
+// parsing data in json
 .then(data => {
-    mainJson = data.feed.entry;
-    mainJson.forEach(data => {
-        title = data.title.$t
-        content = data.content.$t
-        addRow(title, content)
+    mainJson = data.feed.entry; // extracting data from the api response
+    mainJson.forEach(rowData => {  // running loop for each row
+        title = rowData.title.$t        // Dhoondh
+        content = rowData.content.$t    // link:dhoondh.com
+        addRow(title, content)          // adding data to interface
     });
 })
 
 function addRow(title, content) {
-    console.log("incoming>>>>", content);
     let tableArea = document.getElementById('table-area');
     let rowElement = document.createElement('tr')
     let rowHeader = document.createElement('th')
     let rowData = document.createElement('td')
     rowHeader.innerText = title
     rowElement.appendChild(rowHeader)
-    let formattedData = content.split(', ')
-    /*
-    link: google
-    */
-//    console.log("formatted>>>>>", formattedData);
-   console.log("shown>>>>");
+    
+    // content > contactnumber: 26612730, availibility: BUSY/RINGING, link: BLOOD DONATION ORG, location: Bangalore; Karnataka , timedateverified: 1:20PM; 27Apr
+    let formattedData = content.split(', ') // converting to array using commas
+    
+    // creating hasmap to store contents
+    let hash = {}
+    formattedData.forEach(rowData => {
+        let keyPair = rowData.split(': ');  // converting to array using colon
+        // [contactnumber, 26612730]
+        hash[keyPair[0]] = keyPair[1]       // making key value pairs
+        // {
+        //     contactnumber: 26612730
+        // }
+    });
 
-   formattedData = formattedData.map(data => 
-    {
-        let newData = data.split(": ")
-        let header = newData[0]
-        return {header : newData[1]}
-})
-    console.log(formattedData)
-//    for (let index = 0; index < 6; index++) {
-//        let keyPair = typeof formattedData[index] === 'undefined' ? "" : formattedData[index].split(': ')
-//     //    if(keyPair != '')
+    tableHeader.forEach(header => {
+        rowData = document.createElement('td')  // creating table-data tag
+        // adding text inside table-data tag
+        rowData.innerText = hash.hasOwnProperty(header) ? hash[header] : "-"
+        // adding data to row
+        rowElement.appendChild(rowData)
+    })
 
-       
-//    }
-//    formattedData.forEach(data => {
-//        let keyPair = data.split(': ')
-//        console.log(keyPair  )
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[0] ? keyPair[1] : tableHeader[0];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[1] ? keyPair[1] : tableHeader[1];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[2] ? keyPair[1] : tableHeader[2];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[3] ? keyPair[1] : tableHeader[3];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[4] ? keyPair[1] : tableHeader[4];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[5] ? keyPair[1] : tableHeader[5];
-//     //    rowElement.appendChild(rowData)
-//     //    rowData = document.createElement('td')
-//     //    rowData.innerText = keyPair[0] == tableHeader[6] ? keyPair[1] : tableHeader[6];
-//     //    rowElement.appendChild(rowData)
-//     // console.log(rowData);
-//    });
-    // console.log(formattedData);
     tableArea.appendChild(rowElement)
 }
